@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import type { UserRole } from "@/server/db/schema";
 
 /**
  * Edge-safe Auth.js configuration.
@@ -46,9 +47,9 @@ export const authConfig = {
     },
     session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.mfaEnabled = token.mfaEnabled;
+        session.user.id = token.id as string;
+        session.user.role = token.role as UserRole;
+        session.user.mfaEnabled = token.mfaEnabled as boolean | undefined;
       }
       return session;
     },

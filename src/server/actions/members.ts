@@ -12,9 +12,9 @@ import { hashPassword } from "@/lib/password";
 import { assertPermission, AuthorizationError } from "@/server/auth/guards";
 import { recordAudit, recordActivity } from "@/server/services/audit";
 import { notifications_ } from "@/server/services/notifications";
+import { actionError as fail } from "@/lib/utils";
 import type { ActionResult } from "@/lib/utils";
 
-const fail = (error: string): ActionResult => ({ success: false, error });
 const tempPassword = customAlphabet(
   "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789",
   12,

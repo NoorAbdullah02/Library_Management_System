@@ -10,11 +10,8 @@ import { generateBarcode, copyQrPayload, normalizeISBN } from "@/lib/codes";
 import { assertPermission, AuthorizationError } from "@/server/auth/guards";
 import { recordAudit, recordActivity } from "@/server/services/audit";
 import { env } from "@/lib/env";
+import { actionError as fail } from "@/lib/utils";
 import type { ActionResult } from "@/lib/utils";
-
-function fail(error: string): ActionResult {
-  return { success: false, error };
-}
 
 export async function createBook(
   raw: unknown,

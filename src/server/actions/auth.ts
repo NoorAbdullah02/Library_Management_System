@@ -13,9 +13,8 @@ import { sendEmail } from "@/server/services/brevo";
 import { emailTemplates } from "@/server/services/email-templates";
 import { recordActivity } from "@/server/services/audit";
 import { env } from "@/lib/env";
+import { actionError as fail } from "@/lib/utils";
 import type { ActionResult } from "@/lib/utils";
-
-const fail = (error: string): ActionResult => ({ success: false, error });
 
 /** Public self-registration → creates a member account. */
 export async function registerUser(raw: unknown): Promise<ActionResult> {

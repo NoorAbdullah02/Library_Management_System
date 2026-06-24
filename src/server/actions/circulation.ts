@@ -23,10 +23,8 @@ import { assertPermission, AuthorizationError } from "@/server/auth/guards";
 import { getPolicy } from "@/server/services/policy";
 import { recordActivity, recordAudit } from "@/server/services/audit";
 import { notifications_ } from "@/server/services/notifications";
-import { daysOverdue } from "@/lib/utils";
+import { daysOverdue, actionError as fail } from "@/lib/utils";
 import type { ActionResult } from "@/lib/utils";
-
-const fail = (error: string): ActionResult => ({ success: false, error });
 
 function addDays(date: Date, days: number) {
   const d = new Date(date);
@@ -57,7 +55,7 @@ export async function issueBook(raw: unknown): Promise<ActionResult> {
       if (member.status !== "active")
         throw new Error("Member is not active.");
 
-      const [{ value: activeCount }] = await tx
+      const [activeRow] = await tx
         .select({ value: count() })
         .from(borrowings)
         .where(
@@ -66,7 +64,7 @@ export async function issueBook(raw: unknown): Promise<ActionResult> {
             eq(borrowings.status, "active"),
           ),
         );
-      if (Number(activeCount) >= member.maxBorrowLimit)
+      if (Number(activeRow?.value ?? 0) >= member.maxBorrowLimit)
         throw new Error(
           `Borrow limit reached (${member.maxBorrowLimit} books).`,
         );
@@ -306,7 +304,7 @@ export async function renewBook(raw: unknown): Promise<ActionResult> {
       if (borrow.renewalCount >= policy.maxRenewals)
         throw new Error(`Maximum ${policy.maxRenewals} renewals reached.`);
 
-      const [{ value: waiting }] = await tx
+      const [waitingRow] = await tx
         .select({ value: count() })
         .from(reservations)
         .where(
@@ -315,7 +313,7 @@ export async function renewBook(raw: unknown): Promise<ActionResult> {
             eq(reservations.status, "pending"),
           ),
         );
-      if (Number(waiting) > 0)
+      if (Number(waitingRow?.value ?? 0) > 0)
         throw new Error("Cannot renew — other members are waiting.");
 
       const newDue = addDays(borrow.dueAt, days ?? policy.loanDays);
@@ -367,7 +365,7 @@ export async function createReservation(raw: unknown): Promise<ActionResult> {
       });
       if (existing) throw new Error("Already reserved by this member.");
 
-      const [{ value: queued }] = await tx
+      const [queuedRow] = await tx
         .select({ value: count() })
         .from(reservations)
         .where(
@@ -376,7 +374,7 @@ export async function createReservation(raw: unknown): Promise<ActionResult> {
             eq(reservations.status, "pending"),
           ),
         );
-      const pos = Number(queued) + 1;
+      const pos = Number(queuedRow?.value ?? 0) + 1;
       await tx.insert(reservations).values({
         bookId,
         memberId,

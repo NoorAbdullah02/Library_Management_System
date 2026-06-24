@@ -89,6 +89,20 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export type ActionFailure = {
+  success: false;
+  error: string;
+  fieldErrors?: Record<string, string[]>;
+};
+
 export type ActionResult<T = unknown> =
   | { success: true; data: T; message?: string }
-  | { success: false; error: string; fieldErrors?: Record<string, string[]> };
+  | ActionFailure;
+
+/** Narrowly-typed failure helper — assignable to any ActionResult<T>. */
+export function actionError(
+  error: string,
+  fieldErrors?: Record<string, string[]>,
+): ActionFailure {
+  return { success: false, error, fieldErrors };
+}

@@ -12,9 +12,8 @@ import {
 } from "@/lib/validations/circulation";
 import { assertPermission, AuthorizationError } from "@/server/auth/guards";
 import { recordAudit } from "@/server/services/audit";
+import { actionError as fail } from "@/lib/utils";
 import type { ActionResult } from "@/lib/utils";
-
-const fail = (error: string): ActionResult => ({ success: false, error });
 
 export async function createFine(raw: unknown): Promise<ActionResult> {
   try {
