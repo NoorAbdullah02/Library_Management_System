@@ -13,7 +13,6 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import { useUIStore } from "@/stores/ui-store";
 import { NAV_ITEMS } from "@/lib/navigation";

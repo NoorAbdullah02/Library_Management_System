@@ -36,7 +36,7 @@ export function toXLSX<T>(
   rows: T[],
   columns: Column<T>[],
   sheetName = "Export",
-): Buffer {
+): ArrayBuffer {
   const data = rows.map((row) => {
     const obj: Record<string, unknown> = {};
     for (const col of columns) obj[col.header] = cellValue(row, col);
@@ -45,7 +45,13 @@ export function toXLSX<T>(
   const worksheet = XLSX.utils.json_to_sheet(data);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-  return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
+  // Return an ArrayBuffer (a valid `BodyInit` via `BufferSource`) rather than a
+  // Node Buffer, whose generic `Buffer<ArrayBufferLike>` type is not assignable
+  // to `BodyInit`.
+  return XLSX.write(workbook, {
+    type: "array",
+    bookType: "xlsx",
+  }) as ArrayBuffer;
 }
 
 export const exportContentTypes = {

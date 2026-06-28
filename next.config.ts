@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Emit a self-contained server build for the Docker image (.next/standalone).
+  output: "standalone",
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
